@@ -3,7 +3,7 @@ from html import escape
 from time import time
 from mimetypes import guess_type
 from contextlib import suppress
-from os import path as ospath
+from os import path as ospath, walk
 from pyrogram.enums import ButtonStyle
 
 from aiofiles.os import listdir, remove, path as aiopath
@@ -34,8 +34,10 @@ from ..ext_utils.files_utils import (
     clean_download,
     clean_target,
     create_recursive_symlink,
+    ensure_media_extension,
     get_path_size,
     join_files,
+    join_split_zip_files,
     remove_excluded_files,
     move_and_merge,
 )
@@ -68,6 +70,47 @@ from ..telegram_helper.message_utils import (
     send_message,
     update_status_message,
 )
+
+
+_VIDEO_EXTENSIONS = {
+    ".mkv",
+    ".mp4",
+    ".avi",
+    ".mov",
+    ".wmv",
+    ".flv",
+    ".webm",
+    ".m4v",
+    ".ts",
+    ".m2ts",
+}
+
+
+async def _first_video_name(path):
+    if await aiopath.isfile(path):
+        name = ospath.basename(path)
+        return name if ospath.splitext(name)[1].lower() in _VIDEO_EXTENSIONS else ""
+    if not await aiopath.isdir(path):
+        return ""
+    for dirpath, _, names in await sync_to_async(walk, path):
+        for name in sorted(names, key=str.lower):
+            if ospath.splitext(name)[1].lower() in _VIDEO_EXTENSIONS:
+                return name
+    return ""
+
+
+async def _first_video_path(path):
+    if await aiopath.isfile(path):
+        if ospath.splitext(path)[1].lower() in _VIDEO_EXTENSIONS:
+            return path
+        return ""
+    if not await aiopath.isdir(path):
+        return ""
+    for dirpath, _, names in await sync_to_async(walk, path):
+        for name in sorted(names, key=str.lower):
+            if ospath.splitext(name)[1].lower() in _VIDEO_EXTENSIONS:
+                return ospath.join(dirpath, name)
+    return ""
 
 
 class TaskListener(TaskConfig):
@@ -240,6 +283,24 @@ class TaskListener(TaskConfig):
 
         await remove_excluded_files(self.up_dir or self.dir, self.excluded_extensions)
 
+        # StarfallX v1.2: auto unzip / multi-step pipeline hooks
+        from ..video_utils.auto_process import (
+            auto_enabled,
+            bool_setting,
+            maybe_enable_auto_unzip,
+            process_auto_finish_pipeline,
+            process_auto_pipeline,
+        )
+
+        if getattr(self, "zip_merge", False) and await aiopath.isdir(up_path):
+            joined = await join_split_zip_files(up_path)
+            if joined:
+                self.extract = True
+                first = ospath.basename(joined[0])
+                self.file_details.setdefault("filename", first)
+
+        await maybe_enable_auto_unzip(self, up_path)
+
         if not Config.QUEUE_ALL:
             async with queue_dict_lock:
                 if self.mid in non_queued_dl:
@@ -253,11 +314,48 @@ class TaskListener(TaskConfig):
             up_path = await self.proceed_extract(up_path, gid)
             if self.is_cancelled:
                 return
+            if await aiopath.isfile(up_path):
+                up_path = await ensure_media_extension(up_path)
             self.is_file = await aiopath.isfile(up_path)
             self.name = up_path.replace(f"{up_dir}/", "").split("/", 1)[0]
             self.size = await get_path_size(up_dir)
             self.clear()
             await remove_excluded_files(up_dir, self.excluded_extensions)
+
+        # StarfallX v1.2: auto video-tool cue & auto media pipeline
+        first_video = await _first_video_name(up_path)
+        if first_video:
+            self.file_details["first_file"] = first_video
+            if not self.file_details.get("filename"):
+                self.file_details["filename"] = first_video
+            if (
+                self.extract
+                and not self.video_tool
+                and bool_setting(self, "AUTO_VT")
+                and not getattr(self, "rss_auto_leech", False)
+            ):
+                self.video_tool = True
+
+        if auto_enabled(self) and not self.video_tool and not self.is_cancelled:
+            up_path = await process_auto_pipeline(self, up_path, gid)
+            if self.is_cancelled:
+                return
+            self.is_file = await aiopath.isfile(up_path)
+            self.name = up_path.replace(f"{up_dir}/", "").split("/", 1)[0]
+            self.size = await get_path_size(up_dir)
+            self.clear()
+        elif (
+            getattr(self, "force_intro_subtitle", False)
+            and not self.video_tool
+            and not self.is_cancelled
+        ):
+            up_path = await process_auto_finish_pipeline(self, up_path, gid)
+            if self.is_cancelled:
+                return
+            self.is_file = await aiopath.isfile(up_path)
+            self.name = up_path.replace(f"{up_dir}/", "").split("/", 1)[0]
+            self.size = await get_path_size(up_dir)
+            self.clear()
 
         if self.ffmpeg_cmds:
             up_path = await self.proceed_ffmpeg(
@@ -271,10 +369,38 @@ class TaskListener(TaskConfig):
             self.size = await get_path_size(up_dir)
             self.clear()
 
-        if (
+        # StarfallX v1.2: video tools (extract/merge/subtitle translate) pipeline
+        if self.video_tool and not self.is_cancelled:
+            from ..video_utils.video_tools import process_video_tool
+
+            up_path = await process_video_tool(self, up_path)
+            if self.is_cancelled:
+                return
+            self.is_file = await aiopath.isfile(up_path)
+            self.name = up_path.replace(f"{up_dir}/", "").split("/", 1)[0]
+            self.size = await get_path_size(up_dir)
+            self.clear()
+
+        if self.video_tool and auto_enabled(self) and not self.is_cancelled:
+            up_path = await process_auto_finish_pipeline(self, up_path, gid)
+            if self.is_cancelled:
+                return
+            self.is_file = await aiopath.isfile(up_path)
+            self.name = up_path.replace(f"{up_dir}/", "").split("/", 1)[0]
+            self.size = await get_path_size(up_dir)
+            self.clear()
+
+        metadata_allowed = True
+        if auto_enabled(self):
+            metadata_allowed = bool_setting(self, "AUTO_METADATA")
+        if metadata_allowed and not getattr(self, "_vt_extract_only", False) and (
             (hasattr(self, "metadata_dict") and self.metadata_dict)
             or (hasattr(self, "audio_metadata_dict") and self.audio_metadata_dict)
             or (hasattr(self, "video_metadata_dict") and self.video_metadata_dict)
+            or (
+                hasattr(self, "subtitle_metadata_dict")
+                and self.subtitle_metadata_dict
+            )
         ):
             up_path = await apply_metadata_title(
                 self,
@@ -283,6 +409,7 @@ class TaskListener(TaskConfig):
                 getattr(self, "metadata_dict", {}),
                 getattr(self, "audio_metadata_dict", {}),
                 getattr(self, "video_metadata_dict", {}),
+                getattr(self, "subtitle_metadata_dict", {}),
             )
             if self.is_cancelled:
                 return
@@ -297,6 +424,26 @@ class TaskListener(TaskConfig):
             self.file_details["mime_type"] = (guess_type(fname))[
                 0
             ] or "application/octet-stream"
+
+        # StarfallX v1.2: manual thumbnail picker (poster_search)
+        thumbnail_mode = str(
+            self.user_dict.get("THUMBNAIL_MODE", Config.THUMBNAIL_MODE)
+            or "automatic"
+        ).lower()
+        if (
+            self.is_leech
+            and thumbnail_mode == "manual"
+            and not self.thumb
+            and not getattr(self, "rss_auto_leech", False)
+            and not self.is_cancelled
+        ):
+            manual_media_path = await _first_video_path(up_path)
+            if manual_media_path:
+                from ...modules.poster_search import open_task_thumbnail_picker
+
+                await open_task_thumbnail_picker(self, manual_media_path)
+                if self.is_cancelled:
+                    return
 
         if self.name_swap:
             up_path = await self.substitute(up_path)
@@ -381,6 +528,41 @@ class TaskListener(TaskConfig):
             )
             del yt
         elif self.is_leech:
+            # StarfallX v1.2: auto poster generation before leech
+            try:
+                from ..poster_engine import generate_task_poster
+
+                def _poster_bool(value, default=False):
+                    if isinstance(value, bool):
+                        return value
+                    if value is None:
+                        return default
+                    text = str(value).strip().lower()
+                    return text in {"1", "true", "yes", "y", "on"} if text else default
+
+                poster_path = await _first_video_path(up_path)
+                poster_payload = await generate_task_poster(
+                    self.name,
+                    poster_path,
+                    self.user_id,
+                    self.user_dict,
+                    file_caption=getattr(self, "file_details", {}).get("caption", ""),
+                    first_file=getattr(self, "file_details", {}).get("first_file", ""),
+                    custom_name=getattr(self, "custom_name", ""),
+                    link=getattr(self, "source_url", ""),
+                    merge_source_name=getattr(self, "merge_source_name", ""),
+                    as_doc=self.as_doc,
+                )
+                if poster_payload:
+                    self.auto_post = poster_payload
+                    use_poster_thumb = self.user_dict.get(
+                        "AUTO_POSTER_USE_AS_THUMBNAIL",
+                        Config.AUTO_POSTER_USE_AS_THUMBNAIL,
+                    )
+                    if _poster_bool(use_poster_thumb, True) and not self.thumb:
+                        self.thumb = poster_payload.get("path") or self.thumb
+            except Exception as e:
+                LOGGER.warning(f"Auto poster generation failed: {e}", exc_info=True)
             LOGGER.info(f"Leech Name: {self.name}")
             tg = TelegramUploader(self, up_dir)
             async with task_dict_lock:

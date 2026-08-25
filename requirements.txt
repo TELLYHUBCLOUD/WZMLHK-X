@@ -30,8 +30,10 @@ python-magic
 pytz
 qbittorrent-api
 niquests
+requests
 speedtest-cli
 tenacity
+urllib3
 uvicorn
 uvloop
 xattr

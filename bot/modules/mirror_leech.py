@@ -72,6 +72,62 @@ from ..helper.telegram_helper.message_utils import (
 )
 
 
+def _auto_leech_enabled(message):
+    user = message.from_user or message.sender_chat
+    if not user:
+        return False
+    user_dict = user_data.get(user.id, {})
+    if "AUTO_LEECH" in user_dict:
+        return bool(user_dict["AUTO_LEECH"])
+    return bool(Config.AUTO_LEECH)
+
+
+def _message_media(message):
+    return (
+        message.document
+        or message.photo
+        or message.video
+        or message.audio
+        or message.voice
+        or message.video_note
+        or message.sticker
+        or message.animation
+        or None
+    )
+
+
+async def auto_leech(client, message):
+    if Config.DISABLE_LEECH or not _auto_leech_enabled(message):
+        return
+    user = message.from_user or message.sender_chat
+    if getattr(user, "is_bot", False):
+        return
+    text = (message.text or message.caption or "").strip()
+    if text.startswith("/"):
+        return
+    media = _message_media(message)
+    first_line = text.split("\n", 1)[0].strip() if text else ""
+    if not media and not (
+        first_line
+        and (
+            is_url(first_line)
+            or is_magnet(first_line)
+            or is_telegram_link(first_line)
+            or is_gdrive_link(first_line)
+            or is_gdrive_id(first_line)
+            or is_mega_link(first_line)
+            or is_rclone_path(first_line)
+            or await aiopath.exists(first_line)
+        )
+    ):
+        return
+    if media:
+        message.text = f"/{BotCommands.LeechCommand[0]}"
+    else:
+        message.text = f"/{BotCommands.LeechCommand[0]} {first_line}"
+    bot_loop.create_task(Mirror(client, message, is_leech=True).new_event())
+
+
 class Mirror(TaskListener):
     def __init__(
         self,
@@ -149,6 +205,8 @@ class Mirror(TaskListener):
             "-ut": False,
             "-ad": False,
             "-yt": False,
+            "-vt": False,
+            "-zm": 0,
             "-i": 0,
             "-sp": 0,
             "link": "",
@@ -222,6 +280,11 @@ class Mirror(TaskListener):
         self.user_trans = args["-ut"]
         self.is_alldebrid = args["-ad"]
         self.is_yt = args["-yt"]
+        # StarfallX v1.2: video tools / zip-merge flags
+        bare_video_merge = "-m" in input_list and not args["-m"]
+        self.video_tool = args["-vt"]
+        self.manual_video_merge = bool(bare_video_merge)
+        self.zip_merge = False
         self.metadata_dict = self.default_metadata_dict.copy()
         self.audio_metadata_dict = self.audio_metadata_dict.copy()
         self.video_metadata_dict = self.video_metadata_dict.copy()
@@ -247,6 +310,27 @@ class Mirror(TaskListener):
             self.multi = int(args["-i"])
         except Exception:
             self.multi = 0
+
+        # StarfallX v1.2: video-tools / zip-merge routing
+        try:
+            self.zip_merge = int(args["-zm"]) > 0
+            if self.zip_merge and self.multi <= 0:
+                self.multi = int(args["-zm"])
+        except Exception:
+            self.zip_merge = False
+
+        if self.video_tool and self.multi > 1 and not self.folder_name:
+            self.folder_name = f"/vt_video_merge_{self.message.id}"
+        if self.manual_video_merge:
+            self.video_tool = True
+            self.skip_video_tool_ui = True
+            if self.multi > 1:
+                self._vt_processed = True
+                self._vt_state = {"video_merge": True}
+            if self.multi > 1 and not self.folder_name:
+                self.folder_name = f"/vt_video_merge_{self.message.id}"
+        if self.zip_merge and self.multi > 1 and not self.folder_name:
+            self.folder_name = f"/zip_merge_{self.message.id}"
 
         try:
             if args["-ff"]:

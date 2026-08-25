@@ -35,7 +35,7 @@ from ...ext_utils.files_utils import get_base_name, is_archive
 from ...ext_utils.status_utils import get_readable_file_size, get_readable_time
 
 from ...ext_utils.media_utils import get_md5_hash, get_media_info
-from ...telegram_helper.message_utils import delete_message
+from ...telegram_helper.message_utils import delete_message, send_message
 from ...ext_utils.hyperul_utils import HypertgUpload
 
 LOGGER = getLogger(__name__)
@@ -558,11 +558,29 @@ class TelegramUploader:
                 f"Files Corrupted or unable to upload. {self._error or 'Check logs!'}"
             )
             return
+        # StarfallX v1.2: auto poster follow-up
+        await self._send_auto_post()
         LOGGER.info(f"Leech Completed: {self._listener.name}")
         await self._listener.on_upload_complete(
             None, self._msgs_dict, self._total_files, self._corrupted
         )
         return
+
+    async def _send_auto_post(self):
+        post = getattr(self._listener, "auto_post", None)
+        if not post:
+            return
+        path = post.get("path")
+        if not path or not await aiopath.exists(path):
+            return
+        try:
+            caption = post.get("caption") or "<b>Poster</b>"
+            target = self._sent_msg or self._listener.message
+            sent = await send_message(target, caption, photo=path)
+            if sent:
+                self._sent_msg = sent
+        except Exception as err:
+            LOGGER.warning(f"Failed to send auto poster: {err}", exc_info=True)
 
     async def _upload_file(
         self, cap_mono, o_path, file_, seq_idx, force_document=False, user_session=False

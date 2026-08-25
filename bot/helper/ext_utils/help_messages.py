@@ -353,6 +353,30 @@ MIRROR_HELP_DICT = {
     "FFmpeg-Cmds": ffmpeg_cmds,
     "Metadata": metadata,
     "AllDebrid": alldebrid_arg,
+    "StarFallX-VideoTools": (
+        "<b>StarFallX Video Tools</b>: -vt\n\n"
+        "Use <code>/cmd link -vt</code>. If streams are not ready, the bot waits for "
+        "download/extract to finish and opens the menu later.\n\n"
+        "Tools: Remove Stream, Extract Stream, Change Order, Audio Order, Subtitle "
+        "Order, Merge Tracks, Translate Subs, Video + Video.\n\n"
+        "Extract Stream is exclusive and uploads only extracted audio/subtitle artifacts."
+    ),
+    "StarFallX-AutoRename": (
+        "<b>StarFallX AutoRename</b>\n\n"
+        "Task override:\n<code>/cmd link -ar custom [S{season}E{episode}] {name} "
+        "{resolution} {DS4K} {codec}</code>\n\n"
+        "Useful variables: <code>{name}</code> <code>{title}</code> <code>{year}</code> "
+        "<code>{season}</code> <code>{episode}</code> <code>{resolution}</code> "
+        "<code>{quality}</code> <code>{DS4K}</code> <code>{codec}</code> "
+        "<code>{audio_codec}</code> <code>{audio_channels}</code> <code>{shortsub}</code> "
+        "<code>{release_group}</code>."
+    ),
+    "StarFallX-Thumbnail": (
+        "<b>StarFallX Auto Thumbnail</b>\n\n"
+        "Priority: custom user thumb -> TMDb -> AniList -> MyAnimeList -> FFmpeg frame.\n\n"
+        "Provider images are saved from HD sources. Document thumbs are resized only when "
+        "Telegram requires a small thumbnail."
+    ),
 }
 
 CLONE_HELP_DICT = {
@@ -422,6 +446,8 @@ def get_bot_commands():
         "RclStorage": "Get rclone storage info",
         "RclDelete": "[query] Delete files/folders from rclone",
         "Search": "[query] Search torrents via Qbit Plugins",
+        "Poster": "[query/reply] Search and save edited poster thumbnail",
+        "Sites": "Show owner-configured useful website links",
         "MediaInfo": "[reply/link] Get MediaInfo of the Target Media",
         "Select": "[gid/reply] Select files for NZB, Aria2, Qbit Tasks",
         "Ping": "Ping Bot to test Response Speed",

@@ -1,6 +1,6 @@
 # ruff: noqa: F403, F405
 
-from pyrogram.filters import command, regex
+from pyrogram.filters import command, create, regex
 from pyrogram.handlers import CallbackQueryHandler, EditedMessageHandler, MessageHandler
 from pyrogram.types import BotCommand
 
@@ -386,6 +386,38 @@ async def add_handlers():
     )
     TgClient.bot.add_handler(
         MessageHandler(
+            poster_search,
+            filters=command(BotCommands.PosterCommand, case_sensitive=True)
+            & CustomFilters.authorized,
+        )
+    )
+    TgClient.bot.add_handler(
+        CallbackQueryHandler(poster_select, filters=regex("^psel"))
+    )
+    TgClient.bot.add_handler(
+        MessageHandler(
+            receive_thumbnail_upload,
+            filters=create(pending_thumbnail_upload_filter)
+            & CustomFilters.authorized_uset,
+        ),
+        group=-1,
+    )
+    TgClient.bot.add_handler(
+        MessageHandler(
+            sites,
+            filters=command(BotCommands.SitesCommand, case_sensitive=True)
+            & CustomFilters.authorized,
+        )
+    )
+    TgClient.bot.add_handler(
+        MessageHandler(
+            tamilmv,
+            filters=command(f"tmv{Config.CMD_SUFFIX}", case_sensitive=True)
+            & CustomFilters.owner,
+        )
+    )
+    TgClient.bot.add_handler(
+        MessageHandler(
             ping,
             filters=command(BotCommands.PingCommand, case_sensitive=True)
             & CustomFilters.authorized,
@@ -449,6 +481,23 @@ async def add_handlers():
     )
     TgClient.bot.add_handler(CallbackQueryHandler(stats_pages, filters=regex("^stats")))
     TgClient.bot.add_handler(CallbackQueryHandler(log_cb, filters=regex("^log")))
+    TgClient.bot.add_handler(
+        CallbackQueryHandler(
+            video_tools_callback, filters=regex("^vt_") & CustomFilters.authorized
+        )
+    )
+    TgClient.bot.add_handler(
+        MessageHandler(
+            video_tools_media_collector,
+            filters=create(active_merge_track_filter) & CustomFilters.authorized,
+        )
+    )
+    TgClient.bot.add_handler(
+        MessageHandler(
+            video_tools_text_collector,
+            filters=create(active_merge_text_filter) & CustomFilters.authorized,
+        )
+    )
     TgClient.bot.add_handler(CallbackQueryHandler(start_cb, filters=regex("^start")))
     TgClient.bot.add_handler(
         MessageHandler(
@@ -457,6 +506,8 @@ async def add_handlers():
             & CustomFilters.authorized,
         )
     )
+    # StarfallX v1.2: auto leech catch-all (only fires when AUTO_LEECH is on)
+    TgClient.bot.add_handler(MessageHandler(auto_leech, filters=CustomFilters.authorized))
     TgClient.bot.add_handler(
         CallbackQueryHandler(torrent_search_update, filters=regex("^torser"))
     )

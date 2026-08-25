@@ -432,6 +432,32 @@ async def set_aria2(gid, selected_files):
         LOGGER.info(f"Verification Failed! Report! Gid: {gid}")
 
 
+# ---- StarfallX v1.2: MX Player site-resolver API ----
+@app.get("/mxplayer")
+async def mxplayer_api(url: str):
+    if not url:
+        raise HTTPException(status_code=400, detail="url is required")
+    try:
+        from bot.helper.ext_utils.site_resolvers import resolve_mx
+
+        data = await resolve_mx(url, {"MX_PLAYER_API_BASE": "internal"})
+        return JSONResponse(
+            {
+                "status": True,
+                "source_url": data.get("source_url", url),
+                "download_url": data.get("download_url", url),
+                "m3u8_url": data.get("download_url", url),
+                "full_title": data.get("title") or "MX Player Video",
+                "description": data.get("description") or "",
+                "thumbnail": data.get("thumbnail") or "",
+                "videos": data.get("videos") or [],
+                "audios": data.get("audios") or [],
+            }
+        )
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=str(e)) from e
+
+
 @app.get("/", response_class=HTMLResponse)
 async def homepage(request: Request):
     response = templates.TemplateResponse(request, "landing.html")

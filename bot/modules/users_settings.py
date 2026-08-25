@@ -85,6 +85,35 @@ advanced_options = [
 yt_options = ["YT_DESP", "YT_TAGS", "YT_CATEGORY_ID", "YT_PRIVACY_STATUS"]
 mega_options = ["MEGA_EMAIL", "MEGA_PASSWORD"]
 seedr_options = ["SEEDR_EMAIL", "SEEDR_PASSWORD", "SEEDR_DELETE_FOLDER"]
+starfallx_options = [
+    "AUTO_PROCESS",
+    "AUTO_RENAME",
+    "RENAME_METHOD",
+    "AUTO_THUMBNAIL",
+    "THUMBNAIL_MODE",
+    "AUTO_POSTER_ENABLED",
+    "AUTO_POSTER_USE_AS_THUMBNAIL",
+    "AUTO_LEECH",
+    "AUTO_METADATA",
+    "AUTO_MERGE",
+    "AUTO_MERGE_SAFETY_MB",
+    "AUTO_UNZIP",
+    "AUTO_REMOVE_STREAMS",
+    "SEQUENTIAL_LEECH",
+    "AUTO_VT",
+    "AUTO_ORDER",
+    "AUTO_AUDIO_ORDER",
+    "AUTO_SUBTITLE_ORDER",
+    "AUTO_KEEP_AUDIO_LANGS",
+    "AUTO_KEEP_SUBTITLE_LANGS",
+    "AUTO_INTRO_SUBTITLE",
+    "INTRO_SUBTITLE_RANGES",
+    "SUBTITLE_TRANSLATE_PROVIDER",
+    "SUBTITLE_TRANSLATE_TARGET",
+    "LIBRE_TRANSLATE_API_URL",
+    "LIBRE_TRANSLATE_API_KEY",
+    "VIDEO_TOOLS_LOGS",
+]
 
 user_settings_text = {
     "THUMBNAIL": (
@@ -355,6 +384,141 @@ Here I will explain how to use mltb.* which is reference to files you want to wo
         'User-defined GDrive categories (name → drive_id). Format: {"name": "drive_id|index_link"}.',
         '<i>Send dict of user drive categories.\nExample: {"Movies": "0Bxxxxxxxx", "TV": "1Ayyyyyyy|https://index.tv"}\nEach value: drive_id or drive_id|index_link</i> \n┖ <b>Time Left :</b> <code>60 sec</code>',
     ),
+    "AUTO_PROCESS": (
+        "True/False",
+        "Enable the full StarFallX auto media pipeline after download (rename, thumbnail, merge, unzip...).",
+        "<i>Send true or false.</i> \n┖ <b>Time Left :</b> <code>60 sec</code>",
+    ),
+    "AUTO_RENAME": (
+        "True/False",
+        "Automatically rename downloaded media using metadata (TMDb/AniList/MyAnimeList).",
+        "<i>Send true or false.</i> \n┖ <b>Time Left :</b> <code>60 sec</code>",
+    ),
+    "RENAME_METHOD": (
+        "auto / template / regex / off",
+        "How auto rename builds the new name (auto = template from LEECH_FILENAME_REMNAME_AUTO).",
+        "<i>Send auto, template, regex or off.</i> \n┖ <b>Time Left :</b> <code>60 sec</code>",
+    ),
+    "AUTO_THUMBNAIL": (
+        "True/False",
+        "Auto-pick thumbnail: custom thumb → TMDb → AniList → MyAnimeList → FFmpeg frame.",
+        "<i>Send true or false.</i> \n┖ <b>Time Left :</b> <code>60 sec</code>",
+    ),
+    "THUMBNAIL_MODE": (
+        "automatic / manual",
+        "manual opens the poster thumbnail picker before leech.",
+        "<i>Send automatic or manual.</i> \n┖ <b>Time Left :</b> <code>60 sec</code>",
+    ),
+    "AUTO_POSTER_ENABLED": (
+        "True/False",
+        "Auto-generate styled movie/anime poster after download.",
+        "<i>Send true or false.</i> \n┖ <b>Time Left :</b> <code>60 sec</code>",
+    ),
+    "AUTO_POSTER_USE_AS_THUMBNAIL": (
+        "True/False",
+        "Use the generated poster as the Telegram thumbnail.",
+        "<i>Send true or false.</i> \n┖ <b>Time Left :</b> <code>60 sec</code>",
+    ),
+    "AUTO_LEECH": (
+        "True/False",
+        "Automatically leech plain links/files by sending them without any command.",
+        "<i>Send true or false.</i> \n┖ <b>Time Left :</b> <code>60 sec</code>",
+    ),
+    "AUTO_METADATA": (
+        "True/False",
+        "Apply task metadata (if provided) during auto processing.",
+        "<i>Send true or false.</i> \n┖ <b>Time Left :</b> <code>60 sec</code>",
+    ),
+    "AUTO_MERGE": (
+        "True/False",
+        "Auto-merge multi-part media after download.",
+        "<i>Send true or false.</i> \n┖ <b>Time Left :</b> <code>60 sec</code>",
+    ),
+    "AUTO_MERGE_SAFETY_MB": (
+        "MB",
+        "Minimum expected size for automatic merge.",
+        "<i>Send the size in MB.</i> \n┖ <b>Time Left :</b> <code>60 sec</code>",
+    ),
+    "AUTO_UNZIP": (
+        "True/False",
+        "Auto-extract nested archives after download.",
+        "<i>Send true or false.</i> \n┖ <b>Time Left :</b> <code>60 sec</code>",
+    ),
+    "AUTO_REMOVE_STREAMS": (
+        "True/False",
+        "Remove audio/subtitle streams during auto processing.",
+        "<i>Send true or false.</i> \n┖ <b>Time Left :</b> <code>60 sec</code>",
+    ),
+    "SEQUENTIAL_LEECH": (
+        "True/False",
+        "Leech media sequentially instead of in parallel.",
+        "<i>Send true or false.</i> \n┖ <b>Time Left :</b> <code>60 sec</code>",
+    ),
+    "AUTO_VT": (
+        "True/False",
+        "Auto-open Video Tools menu after extract for media tasks.",
+        "<i>Send true or false.</i> \n┖ <b>Time Left :</b> <code>60 sec</code>",
+    ),
+    "AUTO_ORDER": (
+        "True/False",
+        "Auto-order audio/subtitle tracks in extracted media.",
+        "<i>Send true or false.</i> \n┖ <b>Time Left :</b> <code>60 sec</code>",
+    ),
+    "AUTO_AUDIO_ORDER": (
+        "languages",
+        "Preferred audio language order, comma separated (e.g. hin,tam,eng).",
+        "<i>Send language codes separated by commas.</i> \n┖ <b>Time Left :</b> <code>60 sec</code>",
+    ),
+    "AUTO_SUBTITLE_ORDER": (
+        "languages",
+        "Preferred subtitle language order, comma separated.",
+        "<i>Send language codes separated by commas.</i> \n┖ <b>Time Left :</b> <code>60 sec</code>",
+    ),
+    "AUTO_KEEP_AUDIO_LANGS": (
+        "languages",
+        "Languages to keep when removing streams (e.g. tam,hin,eng).",
+        "<i>Send language codes separated by commas.</i> \n┖ <b>Time Left :</b> <code>60 sec</code>",
+    ),
+    "AUTO_KEEP_SUBTITLE_LANGS": (
+        "languages",
+        "Subtitle languages to keep when removing streams.",
+        "<i>Send language codes separated by commas.</i> \n┖ <b>Time Left :</b> <code>60 sec</code>",
+    ),
+    "AUTO_INTRO_SUBTITLE": (
+        "True/False",
+        "Burn intro subtitle ranges as a muxed subtitle track.",
+        "<i>Send true or false.</i> \n┖ <b>Time Left :</b> <code>60 sec</code>",
+    ),
+    "INTRO_SUBTITLE_RANGES": (
+        "ranges",
+        "Intro subtitle ranges, e.g. 00:00:00 - 00:00:05 (5s) | 00:01:20 - 00:01:25 (5s).",
+        "<i>Send the intro subtitle ranges string.</i> \n┖ <b>Time Left :</b> <code>60 sec</code>",
+    ),
+    "SUBTITLE_TRANSLATE_PROVIDER": (
+        "libre / nllb",
+        "Subtitle translation provider used by Video Tools.",
+        "<i>Send libre or nllb.</i> \n┖ <b>Time Left :</b> <code>60 sec</code>",
+    ),
+    "SUBTITLE_TRANSLATE_TARGET": (
+        "language",
+        "Target language code for subtitle translation.",
+        "<i>Send a language code (e.g. en, hi, ta).</i> \n┖ <b>Time Left :</b> <code>60 sec</code>",
+    ),
+    "LIBRE_TRANSLATE_API_URL": (
+        "URL",
+        "LibreTranslate API base URL for subtitle translation.",
+        "<i>Send the API URL.</i> \n┖ <b>Time Left :</b> <code>60 sec</code>",
+    ),
+    "LIBRE_TRANSLATE_API_KEY": (
+        "key",
+        "Optional LibreTranslate API key.",
+        "<i>Send the API key.</i> \n┖ <b>Time Left :</b> <code>60 sec</code>",
+    ),
+    "VIDEO_TOOLS_LOGS": (
+        "True/False",
+        "Log Video Tools processing details.",
+        "<i>Send true or false.</i> \n┖ <b>Time Left :</b> <code>60 sec</code>",
+    ),
 }
 
 
@@ -376,6 +540,9 @@ async def get_user_settings(from_user, stype="main"):
         buttons.data_button("FF Media Settings", f"userset {user_id} ffset")
         buttons.data_button(
             "Misc Settings", f"userset {user_id} advanced", position="l_body"
+        )
+        buttons.data_button(
+            "StarFallX Settings", f"userset {user_id} starfallx", position="l_body"
         )
 
         if user_dict and any(
@@ -1212,6 +1379,37 @@ async def get_user_settings(from_user, stype="main"):
 ┠ <b>YT Category ID</b> → <code>{escape(str(yt_cat_id_val))}</code>
 ┖ <b>YT Privacy Status</b> → <code>{escape(str(yt_privacy_val))}</code>"""
 
+    elif stype == "starfallx":
+        for option in starfallx_options:
+            buttons.data_button(option, f"userset {user_id} menu {option}")
+        buttons.data_button("Back", f"userset {user_id} back", "footer")
+        buttons.data_button(
+            "Close", f"userset {user_id} close", "footer", style=ButtonStyle.DANGER
+        )
+        btns = buttons.build_menu(2)
+
+        enabled = [
+            opt
+            for opt in (
+                "AUTO_PROCESS",
+                "AUTO_RENAME",
+                "AUTO_THUMBNAIL",
+                "AUTO_POSTER_ENABLED",
+                "AUTO_LEECH",
+                "AUTO_MERGE",
+                "AUTO_UNZIP",
+                "AUTO_VT",
+            )
+            if user_dict.get(opt) is not None
+        ]
+        text = f"""⌬ <b>StarFallX Settings :</b>
+┟ <b>Name</b> → {user_name}
+┃
+┠ <b>Auto Process</b> → {user_dict.get('AUTO_PROCESS', 'Not Set')}
+┠ <b>Thumbnail Mode</b> → {user_dict.get('THUMBNAIL_MODE', 'Not Set')}
+┠ <b>Overridden</b> → {', '.join(enabled) if enabled else 'None'}
+┖ <b>Tip</b> → Set <code>true/false</code> values via the buttons below."""
+
     return text, btns
 
 
@@ -1473,6 +1671,8 @@ async def get_menu(option, message, user_id):
         back_to = "ffset"
     elif option in advanced_options:
         back_to = "advanced"
+    elif option in starfallx_options:
+        back_to = "starfallx"
     elif option in uphoster_options:
         back_to = option.split("_")[0].lower()
     elif option in mega_options:
@@ -1624,6 +1824,7 @@ async def edit_user_settings(client, query):
         "vikingfile",
         "ffset",
         "advanced",
+        "starfallx",
         "gdrive",
         "rclone",
         "seedr",
