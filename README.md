@@ -195,6 +195,25 @@ Start with the required values:
 
 Then tune the optional behavior from `config_sample.py`.
 
+### StarfallX v1.2 features (merged)
+
+This build also includes the media/video tooling added in the
+`starfallx-v1.2-video-tools` branch of WZML-X (ported on top of this repo's
+own core — no existing WZMLHK-X behavior was replaced).
+
+| Feature | How to enable / use |
+|---|---|
+| **Video Tools UI** | `/cmd link -vt` (extract/remove/reorder streams, merge tracks, translate subs, video+video merge); `-m` without a value = manual video merge, `-zm N` = zip merge |
+| **Poster engine** | `/poster query` for poster search; `AUTO_POSTER_ENABLED` + `POST_BRAND_NAME` generate styled movie/anime posters automatically |
+| **Auto media processing** | `AUTO_PROCESS`, `AUTO_RENAME`, `AUTO_THUMBNAIL`, `AUTO_METADATA`, `AUTO_MERGE`, `AUTO_UNZIP`, `AUTO_REMOVE_STREAMS`, `AUTO_INTRO_SUBTITLE` + `INTRO_SUBTITLE_*` |
+| **Subtitle translate** | Video Tools → Translate Subs (`SUBTITLE_TRANSLATE_PROVIDER`: `libre` / `nllb`, `LIBRE_TRANSLATE_API_URL/KEY`) |
+| **Extra commands** | `/poster`, `/sites`, `tmv` |
+| **MX Player API** | `/mxplayer?url=...` web endpoint + `MX_PLAYER_API_BASE` / `SITE_QUALITY_SELECTOR_TIMEOUT` |
+
+Extra config keys for these features are already present in
+`config_sample.py` and can be set per-user from `/usetting` → **StarFallX
+Settings** or globally from `/bsetting`.
+
 <details>
    <summary>Important user-facing settings</summary>
 

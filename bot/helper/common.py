@@ -1,5 +1,5 @@
 import re
-from asyncio import gather, sleep
+from asyncio import Event, gather, sleep
 from contextlib import suppress
 from os import path as ospath, walk
 from pyrogram.types import Message
@@ -101,6 +101,7 @@ class TaskConfig:
         self.tag = ""
         self.name = ""
         self.subname = ""
+        self.merge_source_name = ""
         self.category = ""
         self.index_link = ""
         self.name_swap = ""
@@ -152,6 +153,8 @@ class TaskConfig:
         self.is_rss = getattr(self.message, "_rss_trigger", False)
         self.progress = True
         self.ffmpeg_cmds = None
+        self.video_tool = False
+        self.auto_post = None
         self.dump_chat = 0
         self.dump_msg_id = 0
         self.metadata_title = None
@@ -170,6 +173,11 @@ class TaskConfig:
         self.pm_msg = None
         self.file_details = {}
         self.mode = tuple()
+        self._multi_step_done = Event()
+
+    def mark_multi_step_done(self):
+        if not self._multi_step_done.is_set():
+            self._multi_step_done.set()
 
     def _set_mode_engine(self):
         if self.is_nzb and self.link and "/getnzb/api/" in self.link:

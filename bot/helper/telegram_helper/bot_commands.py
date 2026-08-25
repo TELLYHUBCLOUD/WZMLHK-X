@@ -52,6 +52,8 @@ class BotCommands:
         "Exec": "exec",
         "ClearLocals": "clearlocals",
         "IMDB": "imdb",
+        "Poster": "poster",
+        "Sites": "sites",
         "Rss": "rss",
         "AddImage": ["addimage", "ai"],
         "Images": ["images", "img"],

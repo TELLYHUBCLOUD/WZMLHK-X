@@ -84,6 +84,22 @@ def _json_to_rss(data, feed_title="TorAPI"):
 </rss>"""
 
 
+def _parse_chat_value(chat):
+    if not chat:
+        return None, None
+    if isinstance(chat, int):
+        return chat, None
+    chat = str(chat)
+    if "|" in chat:
+        chat_id, thread_id = chat.split("|", 1)
+        chat_id = int(chat_id) if chat_id.lstrip("-").isdigit() else chat_id
+        thread_id = int(thread_id) if thread_id.lstrip("-").isdigit() else None
+        return chat_id, thread_id
+    if chat.lstrip("-").isdigit():
+        return int(chat), None
+    return chat, None
+
+
 def _parse_feed(content):
     try:
         data = jloads(content)

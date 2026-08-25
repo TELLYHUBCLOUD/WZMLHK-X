@@ -172,6 +172,117 @@ class Config:
     YT_CATEGORY_ID = 22
     YT_PRIVACY_STATUS = "unlisted"
 
+    ARIA2_MAX_CONCURRENT_DOWNLOADS = 4
+    ARIA2_MAX_CONNECTION_PER_SERVER = 16
+    ARIA2_MAX_OVERALL_DOWNLOAD_LIMIT = "0"
+    ARIA2_MAX_OVERALL_UPLOAD_LIMIT = "1M"
+    ARIA2_MIN_SPLIT_SIZE = "1M"
+    ARIA2_SPLIT = 16
+    AUTORENAME = True
+    AUTORENAME_CLEAN_SEPARATORS = False
+    AUTO_AUDIO_ORDER = ""
+    AUTO_INTRO_SUBTITLE = False
+    AUTO_KEEP_AUDIO_LANGS = ""
+    AUTO_KEEP_SUBTITLE_LANGS = ""
+    AUTO_LEECH = False
+    AUTO_MERGE = False
+    AUTO_MERGE_SAFETY_MB = 150
+    AUTO_METADATA = True
+    AUTO_ORDER = False
+    AUTO_POSTER_ENABLED = False
+    AUTO_POSTER_USE_AS_THUMBNAIL = True
+    AUTO_PROCESS = False
+    AUTO_PROCESS_LOGS = False
+    AUTO_PROCESS_MESSAGE_MODE = "quiet"
+    AUTO_REMOVE_STREAMS = False
+    AUTO_RENAME = True
+    AUTO_SUBTITLE_ORDER = ""
+    AUTO_THUMBNAIL = False
+    AUTO_THUMBNAIL_QUALITY = 95
+    AUTO_UNZIP = False
+    AUTO_VT = False
+    BASE_URL_PORT = 80
+    BOT_THEME = "starfall"
+    CLEAN_LOG_MSG = False
+    FFMPEG_CPU_CORES = ""
+    FFMPEG_QUEUE_ENABLED = True
+    FFMPEG_QUEUE_LOGS = True
+    FFMPEG_THREADS = 0
+    INCOMPLETE_TASK_NOTIFIER = False
+    INTRO_SUBTITLE_COLOR = "&H00FFFFFF"
+    INTRO_SUBTITLE_COLOR_PALETTE = ""
+    INTRO_SUBTITLE_DURATION = 5
+    INTRO_SUBTITLE_FADE_MS = 400
+    INTRO_SUBTITLE_FONT = "Arial"
+    INTRO_SUBTITLE_FONT_SIZE = 54
+    INTRO_SUBTITLE_OUTLINE_COLOR = "&H00FF9E2D"
+    INTRO_SUBTITLE_RANGES = "00:00:00 - 00:00:05 (5s) | 00:01:20 - 00:01:25 (5s) | 00:02:40 - 00:02:45 (5s) | 00:04:00 - 00:04:05 (5s) | 00:05:20 - 00:05:25 (5s) | 00:06:40 - 00:06:45 (5s) | 00:08:00 - 00:08:05 (5s) | 00:09:20 - 00:09:25 (5s) | 00:10:40 - 00:10:45 (5s) | 00:12:00 - 00:12:05 (5s) | 00:13:20 - 00:13:25 (5s) | 00:14:40 - 00:14:45 (5s) | 00:16:00 - 00:16:05 (5s) | 00:17:20 - 00:17:25 (5s) | 00:18:40 - 00:18:45 (5s)"
+    INTRO_SUBTITLE_TEXT = ""
+    LEECH_COMPLETE_MSG = True
+    LEECH_FILENAME_REMNAME_AUTO = "[S{season}E{episode}] {title}   {resolution} {bit} {ott} {quality} {lib} [Tamil] ESub"
+    LEECH_FILENAME_REMNAME_REGEX = r"www\.1TamilMV\.[^\s]+"
+    LIBRE_TRANSLATE_API_KEY = ""
+    LIBRE_TRANSLATE_API_URL = ""
+    MAX_PARALLEL_TASKS = 0
+    MX_DEFAULT_AUDIO = "ask"
+    MX_PLAYER_API_BASE = "internal"
+    MYANIMELIST_CLIENT_ID = ""
+    MYANIMELIST_CLIENT_NAME = ""
+    PERFORMANCE_PROFILE = "auto"
+    POST_ANIME_CAPTION = (
+        "<b>{title}</b>\n\n"
+        "Quality: <code>{quality} {resolution} {bit} {codec}</code>\n"
+        "Audio: <code>{audio}</code>\n"
+        "Subtitles: <code>{subtitles}</code>\n\n"
+        "<blockquote expandable>{synopsis}</blockquote>"
+    )
+    POST_BRAND_NAME = "Anime Starfall"
+    POST_LOGO = ""
+    POST_MOVIE_CAPTION = (
+        "<b>「 {title} - {year} 」</b>\n"
+        "━━━━━━━━━━━━━━━━━━\n"
+        "╔════◇═══════════◇════\n"
+        "║ Season ➤ {season} ( {episodes} Episodes )\n"
+        "║ IMBD ➤ {rating} Rating \n"
+        "║ Genres ➤ {genres} \n"
+        "║ Quality ➤ {resolution} {bit} {codec}\n"
+        "║ Audio ➤ {languages} {audio_codec} {audio_channels} ~ {shortsub} \n"
+        "╚════◇═══════════◇════\n\n"
+        "<blockquote expandable>Synopsis :\n"
+        "   {plot}</blockquote>"
+    )
+    POST_TEMPLATE_ID = 1
+    POST_TV_CAPTION = (
+        "<b>{title}</b> S{season}E{episode}\n\n"
+        "Quality: <code>{quality} {resolution} {bit} {codec}</code>\n"
+        "Audio: <code>{audio}</code>\n"
+        "Subtitles: <code>{subtitles}</code>\n\n"
+        "<blockquote expandable>{plot}</blockquote>"
+    )
+    PREMIUM_UPLOAD_WORKERS = 2
+    QBIT_UPLOAD_LIMIT = 1048576
+    QUEUE_BYPASS_SIZE_GB = 1
+    RENAME_METHOD = "auto"
+    RSS_PARALLEL_DOWNLOADS = 8
+    RSS_PARALLEL_UPLOADS = 2
+    SAFE_CPU_PERCENT = 88
+    SAFE_FREE_RAM_MB = 768
+    SEQUENTIAL_LEECH = True
+    SITES_LINKS = ""
+    SITE_QUALITY_SELECTOR_TIMEOUT = 120
+    STATUS_THEME = "starfall"
+    SUBTITLE_TRANSLATE_PROVIDER = "libre"
+    SUBTITLE_TRANSLATE_TARGET = "en"
+    TG_COPY_DELAY = 0.15
+    TG_FLOOD_WAIT_MULTIPLIER = 1.1
+    THUMBNAIL_MODE = "automatic"
+    TMDB_ACCESS_TOKEN = ""
+    TMV_CATEGORY = "tamil"
+    TMV_SEEN_ITEMS = ""
+    UPDATE_PKGS = True
+    VIDEO_TOOLS_LOGS = True
+    VIDEO_TOOLS_REPLY_TIMEOUT = 30
+
     @classmethod
     def get(cls, key):
         return getattr(cls, key) if hasattr(cls, key) else None

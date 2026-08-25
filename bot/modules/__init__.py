@@ -35,6 +35,7 @@ from .stream import stream_links
 from .category_select import change_category, confirm_category
 from .broadcast import broadcast
 from .mirror_leech import (
+    auto_leech,
     mirror,
     leech,
     qb_leech,
@@ -55,7 +56,16 @@ from .restart import (
     restart_sessions,
 )
 from .imdb import imdb_search, imdb_callback
+from .poster_search import (
+    pending_thumbnail_upload_filter,
+    poster_search,
+    poster_select,
+    receive_thumbnail_upload,
+    start_thumbnail_picker,
+)
+from .sites import sites
 from .rss import get_rss_menu, rss_listener
+from .tamilmv import tamilmv
 from .search import torrent_search, torrent_search_update, initiate_search_tools
 from .nzb_search import hydra_search
 from .services import start, start_cb, login, ping, log, log_cb
@@ -65,6 +75,13 @@ from .status import task_status, status_pages
 from .users_settings import get_users_settings, edit_user_settings, send_user_settings
 from .gen_pyro_sess import gen_pyro_string
 from .ytdlp import ytdl, ytdl_leech
+from .video_tool_ui import video_tools_callback
+from ..helper.video_utils.video_tools import (
+    active_merge_track_filter,
+    active_merge_text_filter,
+    video_tools_media_collector,
+    video_tools_text_collector,
+)
 
 __all__ = [
     "send_bot_settings",
@@ -108,6 +125,7 @@ __all__ = [
     "uphoster",
     "mirror",
     "leech",
+    "auto_leech",
     "qb_leech",
     "qb_mirror",
     "jd_leech",
@@ -123,8 +141,15 @@ __all__ = [
     "restart_sessions",
     "imdb_search",
     "imdb_callback",
+    "poster_search",
+    "poster_select",
+    "pending_thumbnail_upload_filter",
+    "receive_thumbnail_upload",
+    "start_thumbnail_picker",
+    "sites",
     "get_rss_menu",
     "rss_listener",
+    "tamilmv",
     "torrent_search",
     "torrent_search_update",
     "initiate_search_tools",
@@ -155,4 +180,9 @@ __all__ = [
     "gen_pyro_string",
     "ytdl",
     "ytdl_leech",
+    "video_tools_callback",
+    "active_merge_track_filter",
+    "active_merge_text_filter",
+    "video_tools_media_collector",
+    "video_tools_text_collector",
 ]
